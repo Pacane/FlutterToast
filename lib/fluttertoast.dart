@@ -1,7 +1,7 @@
 import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 /// Toast Length
 /// Only for Android Platform
@@ -27,80 +27,6 @@ enum ToastGravity {
   CENTER_RIGHT,
   SNACKBAR,
   NONE
-}
-
-/// Plugin to show a toast message on screen
-/// Only for android, ios and Web platforms
-class Fluttertoast {
-  /// [MethodChannel] used to communicate with the platform side.
-  static const MethodChannel _channel =
-      const MethodChannel('PonnamKarthik/fluttertoast');
-
-  /// Let say you have an active show
-  /// Use this method to hide the toast immediately
-  static Future<bool?> cancel() async {
-    bool? res = await _channel.invokeMethod("cancel");
-    return res;
-  }
-
-  /// Summons the platform's showToast which will display the message
-  ///
-  /// Wraps the platform's native Toast for android.
-  /// Wraps the Plugin https://github.com/scalessec/Toast for iOS
-  /// Wraps the https://github.com/apvarun/toastify-js for Web
-  ///
-  /// Parameter [msg] is required and all remaining are optional
-  static Future<bool?> showToast({
-    required String msg,
-    Toast? toastLength,
-    int timeInSecForIosWeb = 1,
-    double? fontSize,
-    ToastGravity? gravity,
-    Color? backgroundColor,
-    Color? textColor,
-    bool webShowClose = false,
-    webBgColor = "linear-gradient(to right, #00b09b, #96c93d)",
-    webPosition = "right",
-  }) async {
-    String toast = "short";
-    if (toastLength == Toast.LENGTH_LONG) {
-      toast = "long";
-    }
-
-    String gravityToast = "bottom";
-    if (gravity == ToastGravity.TOP) {
-      gravityToast = "top";
-    } else if (gravity == ToastGravity.CENTER) {
-      gravityToast = "center";
-    } else {
-      gravityToast = "bottom";
-    }
-
-//lines from 78 to 97 have been changed in order to solve issue #328
-    if (backgroundColor == null) {
-      backgroundColor = Colors.black;
-    }
-    if (textColor == null) {
-      textColor = Colors.white;
-    }
-    final Map<String, dynamic> params = <String, dynamic>{
-      'msg': msg,
-      'length': toast,
-      'time': timeInSecForIosWeb,
-      'gravity': gravityToast,
-      'bgcolor': backgroundColor.value,
-      'iosBgcolor': backgroundColor.value,
-      'textcolor': textColor.value,
-      'iosTextcolor': textColor.value,
-      'fontSize': fontSize,
-      'webShowClose': webShowClose,
-      'webBgColor': webBgColor,
-      'webPosition': webPosition
-    };
-
-    bool? res = await _channel.invokeMethod('showToast', params);
-    return res;
-  }
 }
 
 /// Signature for a function to buildCustom Toast
@@ -151,17 +77,16 @@ class FToast {
 
     /// To prevent exception "Looking up a deactivated widget's ancestor is unsafe."
     /// which can be thrown if context was unmounted (e.g. screen with given context was popped)
-    /// TODO: revert this change when envoirment will be Flutter >= 3.7.0
-    // if (context?.mounted != true) {
-    //   if (kDebugMode) {
-    //     print(
-    //         'FToast: Context was unmuted, can not show ${_overlayQueue.length} toast.');
-    //   }
+    if (context?.mounted != true) {
+      if (kDebugMode) {
+        print(
+            'FToast: Context was unmuted, can not show ${_overlayQueue.length} toast.');
+      }
 
-    //   /// Need to clear queue
-    //   removeQueuedCustomToasts();
-    //   return; // Or maybe thrown error too
-    // }
+      /// Need to clear queue
+      removeQueuedCustomToasts();
+      return; // Or maybe thrown error too
+    }
     var _overlay;
     try {
       _overlay = Overlay.of(context!);

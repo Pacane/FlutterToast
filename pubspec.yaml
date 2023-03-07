@@ -11,19 +11,5 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_web_plugins:
-    sdk: flutter
 
 flutter:
-  plugin:
-    platforms:
-      android:
-        package: io.github.ponnamkarthik.toast.fluttertoast
-        pluginClass: FlutterToastPlugin
-      ios:
-        pluginClass: FluttertoastPlugin
-      web:
-        pluginClass: FluttertoastWebPlugin
-        fileName: fluttertoast_web.dart
-  assets:
-    - assets/
